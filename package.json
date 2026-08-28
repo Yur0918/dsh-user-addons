@@ -1,0 +1,51 @@
+{
+  "name": "dsh-user-addons",
+  "version": "1.1.0",
+  "description": "DSH user addons: file drop-upload, archived-session manager, model/token usage dashboard (auto-loads with the web profile)",
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "README.md",
+    "README.zh.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "check": "node --check lib/index.js && node --check lib/client.js"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "web-plugin",
+    "usage-dashboard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yur0918/dsh-user-addons.git"
+  },
+  "homepage": "https://github.com/Yur0918/dsh-user-addons#readme",
+  "bugs": {
+    "url": "https://github.com/Yur0918/dsh-user-addons/issues"
+  }
+}
