@@ -30,14 +30,23 @@ Community plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-
 
 ### 安装
 
-**方式 A：bundle 安装（`dsh plugin add`）**
+**方式 A：bundle 安装（正式方式，v1.1.1 起）**
 
 ```sh
+# 直接从 GitHub 安装（推荐）
+dsh plugin --profile web add github:Yur0918/dsh-user-addons
+
+# 或先 clone 再本地安装
 git clone https://github.com/Yur0918/dsh-user-addons.git
 dsh plugin --profile web add ./dsh-user-addons
 ```
 
-> `package.json` 当前只声明 `dsh.client`（浏览器半区 manifest）；host 半区路由（`/addons/*`）经方式 B 的 patch 行加载。两种方式可叠加使用。
+> v1.1.1 起 `package.json` 声明了 `dsh.bundle`（`cordis.patch.yml` 插入 `user-addons` 行），`dsh plugin add` 会把本包追加进 profile 的 `dsh.profile.bundles`，host 半区 `/addons/*` 路由与 client 半区一并生效。
+>
+> **从 GitHub 安装的构建提示**：本插件 lib/ 为手写纯 JS（无构建步骤），不涉及 pnpm `prepare` 脚本与 allowBuilds 白名单。
+> 安全提示：git 安装 = 安装时执行包代码，建议固定 commit —— `dsh plugin --profile web add github:Yur0918/dsh-user-addons#<sha>`。
+>
+> **验证安装**：`dsh --profile web --dump-config` 中出现 `dsh-user-addons` bundle 层即成功。
 
 **方式 B：手动软链接（已验证）**
 
@@ -106,19 +115,17 @@ Drop **any file straight into the DSH web chat** — drag & drop anywhere, paste
 ### Install
 
 ```sh
-# Option A: bundle install
+# Option A: bundle install (official, v1.1.1+)
+dsh plugin --profile web add github:Yur0918/dsh-user-addons
+# or local:
 git clone https://github.com/Yur0918/dsh-user-addons.git
 dsh plugin --profile web add ./dsh-user-addons
 
-# Option B: manual symlink (verified)
-ln -s "$PWD" ~/.dsh/profiles/node_modules/dsh-user-addons
-cat >> ~/.dsh/profiles/web/cordis.patch.yml <<'EOF'
-- insert:
-    - id: user-addons
-      name: 'dsh-user-addons'
-EOF
+# Option B: manual symlink into ~/.dsh/profiles/node_modules/ + one insert row in ~/.dsh/profiles/web/cordis.patch.yml
 # restart dsh web, then hard-refresh the browser
 ```
+
+Since v1.1.1 the package declares a `dsh.bundle` manifest (`cordis.patch.yml`), so `dsh plugin add` appends it to the profile's `dsh.profile.bundles` and both the host `/addons/*` routes and the client half activate. The lib/ sources are hand-written plain JS — no build step, no pnpm allowBuilds needed. For supply-chain safety, pin a commit: `github:Yur0918/dsh-user-addons#<sha>`.
 
 ### Architecture
 

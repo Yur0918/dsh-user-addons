@@ -1,0 +1,6 @@
+# dsh-user-addons bundle layer: inserts the user-addons rows into the profile
+# composition. Applied when a profile lists this package via dsh.plugin bundles
+# (dsh plugin --profile web add ...) or in --patch overlays.
+- insert:
+    - id: user-addons
+      name: dsh-user-addons
