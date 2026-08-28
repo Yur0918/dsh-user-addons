@@ -68,7 +68,7 @@ launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh
 
 ```sh
 curl http://127.0.0.1:3080/addons/health
-# {"ok":true,"addon":"dsh-user-addons","version":"1.1.0"}
+# {"ok":true,"addon":"dsh-user-addons","version":"1.1.1"}
 ```
 
 ### 工作原理
