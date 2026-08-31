@@ -1,6 +1,6 @@
 {
   "name": "dsh-user-addons",
-  "version": "1.1.2",
+  "version": "1.1.0",
   "description": "DSH user addons: file drop-upload, archived-session manager, model/token usage dashboard (auto-loads with the web profile)",
   "type": "module",
   "main": "lib/index.js",
@@ -10,8 +10,7 @@
     "README.md",
     "README.zh.md",
     "LICENSE",
-    "package.json",
-    "cordis.patch.yml"
+    "package.json"
   ],
   "exports": {
     ".": "./lib/index.js",
@@ -25,9 +24,6 @@
         "@deepseek-ai/dsh-client-runtime",
         "@deepseek-ai/dsh-client-locale"
       ]
-    },
-    "bundle": {
-      "patch": "./cordis.patch.yml"
     }
   },
   "license": "MIT",

@@ -1,14 +1,10 @@
 node_modules/
-*.tsbuildinfo
+coverage/
 .DS_Store
-
-# local artifacts that must never leak into the repo
+*.log
 *.bak*
 .env
 .env.*
-*.log
-logs/
+!.env.example
 dsh-uploads/
 .dsh-mcp-tasks/
-.storages/
-.sessions/
