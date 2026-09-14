@@ -5,6 +5,7 @@
   "type": "module",
   "main": "lib/index.js",
   "files": [
+    "cordis.patch.yml",
     "lib/index.js",
     "lib/client.js",
     "README.md",
