@@ -7,7 +7,7 @@ This package provides a small, out-of-tree DSH plugin with both Host and Web cli
 ## Features
 
 - File drop/upload support in the Web composer. Images are attached when the selected model supports image input; other files are saved locally and attached by path.
-- An archived-session manager for finding, archiving, and restoring sessions through DSH's workspace registry.
+- An archived-session manager for finding, archiving, restoring — and since 1.3.0, previewing (read-only conversation peek without restoring) and full-text searching (matches inside the decoded conversation log, not just titles) — sessions through DSH's workspace registry.
 - A local model and token usage dashboard, folded from `~/.dsh/sessions`.
 - An image-capability endpoint used by the Web client to choose the appropriate attachment behavior.
 
@@ -26,7 +26,7 @@ Install this package using the plugin/package mechanism used by your DSH profile
     "client": {
       "platform": "web",
       "inject": [
-        "@deepseek-ai/dsh-client-runtime",
+        
         "@deepseek-ai/dsh-client-locale"
       ]
     }

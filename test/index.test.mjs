@@ -1,7 +1,8 @@
-// 纯函数单测:命名清洗、首条 prompt 提取、用量折叠、zstd 多帧解析。
-// 只测 lib/index.js 的顶层纯函数,不启动 webServer、不触碰文件系统。
+// 纯函数单测:命名清洗、首条 prompt 提取、用量折叠、zstd 多帧解析、归档预览摘要、版本号派生。
+// 只测 lib/index.js 的顶层纯函数,不启动 webServer;除自身 package.json(只读)外不触碰文件系统。
 
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import { zstdCompressSync } from "node:zlib";
 import {
@@ -11,6 +12,8 @@ import {
   emptyFileFold,
   parseZstdFrames,
   decodeZstdLog,
+  readOwnVersion,
+  previewFromText,
 } from "../lib/index.js";
 
 // ── safeName ────────────────────────────────────────────────────────────────
@@ -155,4 +158,48 @@ test("decodeZstdLog 解出全部帧文本;损坏尾帧只截断不报错", () =>
   assert.equal(decodeZstdLog(buf), '{"type":"session"}\nline2\n');
   const withJunk = Buffer.concat([buf, Buffer.from("garbage")]);
   assert.equal(decodeZstdLog(withJunk), '{"type":"session"}\nline2\n');
+});
+
+test("readOwnVersion 从 package.json 派生版本号(不再硬编码)", () => {
+  const v = readOwnVersion();
+  assert.match(v, /^\d+\.\d+\.\d+/);
+  // 与仓库 package.json 一致,而不是历史遗留的 "1.2.0"
+  const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  assert.equal(v, pkg.version);
+});
+
+test("previewFromText 提取标题/首条用户消息/末尾轮次,跳过上下文注入", () => {
+  const lines = [
+    JSON.stringify({ type: "session", data: { createdAt: 1, cwd: "/x" } }),
+    JSON.stringify({ type: "session/title", data: "调试 cordis 插件" }),
+    JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: "Current runtime context …" }] } }),
+    JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: "帮我看看为什么插件没加载" }] } }),
+    JSON.stringify({ type: "assistant/message", data: { content: [{ type: "text", text: "先看日志。" }], usage: { inputTokens: 10, outputTokens: 5 } } }),
+    JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: "日志在这里" }] } }),
+    JSON.stringify({ type: "assistant/message", data: { content: [{ type: "text", text: "找到原因了:patch 没插行。" }], usage: { inputTokens: 1, outputTokens: 2 } } })
+  ].join("\n");
+  const p = previewFromText(lines);
+  assert.equal(p.title, "调试 cordis 插件");
+  assert.equal(p.firstUser, "帮我看看为什么插件没加载");
+  assert.equal(p.turns.length, 4);
+  assert.equal(p.turns[3].role, "assistant");
+  assert.equal(p.turns[3].text, "找到原因了:patch 没插行。");
+});
+
+test("previewFromText 只保留末尾 7 轮;首条用户消息 200 字截断、轮次 400 字截断", () => {
+  const long = "长".repeat(600);
+  const lines = [];
+  for (let i = 1; i <= 12; i++) lines.push(JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: "问题 " + i }] } }));
+  // 第 1 条超长,验证 firstUser 截断到 200 字 + …;末轮超长,验证轮次 400 字截断
+  lines.unshift(JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: long }] } }));
+  const p = previewFromText(lines.join("\n"));
+  assert.equal(p.turns.length, 7);
+  assert.equal(p.turns[0].text, "问题 6");
+  assert.equal(p.turns[6].text, "问题 12");
+  assert.ok(p.firstUser.startsWith("长"));
+  assert.equal(p.firstUser.length, 201);
+  assert.ok(p.firstUser.endsWith("…"));
+  const p2 = previewFromText(JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: long }] } }));
+  assert.equal(p2.turns[0].text.length, 401);
+  assert.ok(p2.turns[0].text.endsWith("…"));
 });
