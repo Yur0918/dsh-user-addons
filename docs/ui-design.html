@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>dsh-user-addons 界面设计稿</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#eef1f5;font:14px/1.65 -apple-system,"PingFang SC",sans-serif;
+  padding:32px;color:#1a2332}
+.wrap{width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;
+  gap:18px}
+.pane{background:#fff;border:1px solid #dfe4ea;border-radius:10px;overflow:hidden;
+  box-shadow:0 4px 16px rgba(20,35,55,.07)}
+.ph{padding:13px 17px;border-bottom:1px solid #e6eaef;background:#fafbfc;
+  display:flex;align-items:center;gap:9px}
+.ph h3{font-size:13.5px;font-weight:650;color:#1a2332}
+.ph .n{font-size:10.5px;color:#8a94a3;margin-left:auto;background:#eef2f7;
+  padding:2px 8px;border-radius:999px}
+
+.sect{padding:13px 17px 9px;font-size:10.5px;color:#9aa3b0;
+  text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #f0f3f6}
+
+/* 会话归档行 */
+.srow{display:flex;align-items:center;gap:10px;padding:9px 17px;
+  border-bottom:1px solid #f4f6f9}
+.srow .ti{width:26px;height:26px;border-radius:6px;background:#eaf0f8;
+  display:grid;place-items:center;font-size:11px;color:#3f6ca8;flex-shrink:0}
+.srow .ti.a{background:#f0f4ee;color:#5b7a4e}
+.srow .b{flex:1;min-width:0}
+.srow .b .t{font-size:12.5px;color:#1f2a37;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis}
+.srow .b .m{font-size:10.5px;color:#96a0ae;margin-top:1px}
+.btn{font-size:10.5px;color:#5b6675;background:#f4f6f9;padding:4px 9px;
+  border-radius:6px;border:1px solid #e4e8ed;white-space:nowrap}
+.btn.p{color:#b42318;background:#fef3f3;border-color:#f5d5d5}
+.srch{margin:11px 17px;display:flex;gap:8px}
+.srch input{flex:1;font:12px/1 inherit;padding:7px 10px;border:1px solid #dfe4ea;
+  border-radius:7px;color:#a8b1bd}
+.hit{font-size:10.5px;color:#8a94a3;margin:-4px 17px 8px}
+.hit b{color:#1a4fa0}
+
+/* 用量看板 */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#eef1f4;
+  border-bottom:1px solid #eef1f4}
+.kpi{background:#fff;padding:12px 14px}
+.kpi .n{font-size:19px;font-weight:680;color:#1a4fa0;letter-spacing:-.02em}
+.kpi .l{font-size:10.5px;color:#7a8595;margin-top:2px}
+.lg{display:flex;gap:14px;padding:10px 17px 0;font-size:10.5px;color:#8a94a3;flex-wrap:wrap}
+.lg span{display:flex;align-items:center;gap:5px}
+.lg i{width:14px;height:6px;border-radius:2px;background:#2f6fc4;display:block}
+.lg i.lo{background:repeating-linear-gradient(115deg,#d9a441 0 4px,#c89436 4px 8px)}
+.lg i.off{background:#cfd6de}
+.bars{padding:12px 17px 17px}
+.b{display:flex;align-items:center;gap:9px;margin-bottom:8px;font-size:11px}
+.b .nm{width:70px;color:#5b6675;text-align:right;flex-shrink:0}
+.b .tr{flex:1;height:15px;background:#f1f4f7;border-radius:4px;overflow:hidden}
+/* 配色承载语义，不是装饰：
+   主蓝 = 有真实 usage 记录 / 琥珀 = 下界（有缺口）/ 灰 = 不计入统计 */
+.b .tr i{display:block;height:100%;border-radius:4px;background:#2f6fc4}
+.b .tr i.lo{background:repeating-linear-gradient(115deg,#d9a441 0 5px,#c89436 5px 10px)}
+.b .tr i.off{background:#cfd6de}
+.b .v{width:108px;font-size:10.5px;color:#8a94a3;flex-shrink:0;text-align:right}
+.b .v.t{color:#8a5a00}.b .v.o{color:#a3acb8}
+
+.note{grid-column:1/-1;background:#fff;border:1px solid #dfe4ea;border-radius:9px;
+  padding:15px 18px;font-size:12.5px;color:#55636f;line-height:1.8}
+.note b{color:#1a2332;display:block;margin-bottom:5px;font-size:13px}
+.note .c{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:9px}
+.note .c div{font-size:12px}
+</style></head><body>
+<div class="wrap">
+
+  <div class="pane">
+    <div class="ph"><h3>会话归档管理 <span style="font-size:10.5px;font-weight:400;color:#9aa3b0">（示意数据）</span></h3><span class="n">dsh-user-addons</span></div>
+    <div class="srch">
+      <input value="full-text: 断言 门禁" readonly>
+      <span class="btn">全部</span>
+    </div>
+    <div class="hit">命中 <b>3</b> 条（在<b>对话正文</b>内匹配，非仅标题）</div>
+    <div class="srow"><i class="ti">S</i>
+      <div class="b"><div class="t">重构登录态校验</div>
+        <div class="m">2 小时前 · 14 轮 · 含「确定性断言」×3</div></div>
+      <span class="btn">预览</span><span class="btn">归档</span></div>
+    <div class="srow"><i class="ti a">S</i>
+      <div class="b"><div class="t">DSL 校验器修复</div>
+        <div class="m">昨天 · 9 轮 · 含「门禁」×5</div></div>
+      <span class="btn">预览</span><span class="btn">归档</span></div>
+    <div class="srow"><i class="ti">S</i>
+      <div class="b"><div class="t">面板吸顶折叠排查</div>
+        <div class="m">3 天前 · 22 轮 · 含「断言」×2</div></div>
+      <span class="btn">预览</span><span class="btn p">已归档</span></div>
+    <div class="srow"><i class="ti a">S</i>
+      <div class="b"><div class="t">用量看板接入</div>
+        <div class="m">5 天前 · 6 轮 · 含「复核」×1</div></div>
+      <span class="btn">预览</span><span class="btn">归档</span></div>
+  </div>
+
+  <div class="pane">
+    <div class="ph"><h3>本地模型与用量看板 <span style="font-size:10.5px;font-weight:400;color:#9aa3b0">（示意数据）</span></h3><span class="n">dsh-user-addons</span></div>
+    <div class="kpis">
+      <div class="kpi"><div class="n">1.42 亿</div><div class="l">近 7 日 token（示意 · 仅真实口径）</div></div>
+      <div class="kpi"><div class="n">6</div><div class="l">监测 Agent</div></div>
+      <div class="kpi"><div class="n">5</div><div class="l">今日会话</div></div>
+    </div>
+    <div class="lg">
+  <span><i style="background:#2f6fc4"></i>真实 usage 记录</span>
+  <span><i class="lo"></i>下界（有缺口）</span>
+  <span><i class="off"></i>口径不同，不计入</span>
+</div>
+<div class="bars">
+      <div class="b"><span class="nm">Zcode</span>
+        <span class="tr"><i style="width:100%"></i></span><span class="v">7,180 万</span></div>
+      <div class="b"><span class="nm">Codex</span>
+        <span class="tr"><i style="width:90%"></i></span><span class="v">6,420 万</span></div>
+      <div class="b"><span class="nm">AutoClaw</span>
+        <span class="tr"><i class="lo" style="width:16%"></i></span><span class="v t">1,190 万 · 下界</span></div>
+      <div class="b"><span class="nm">OpenCode</span>
+        <span class="tr"><i style="width:4%"></i></span><span class="v">26 万</span></div>
+      <div class="b"><span class="nm">DSH dsh</span>
+        <span class="tr"><i class="off" style="width:2%"></i></span><span class="v o">估算 · 不计入</span></div>
+      <div class="b"><span class="nm">WorkBuddy</span>
+        <span class="tr"><i class="off" style="width:2%"></i></span><span class="v o">上下文占用 非消耗</span></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>三个功能，都不改动 DSH 核心文件</b>
+    <div class="c">
+      <div><b>文件拖拽上传</b><br>模型支持图像则走图像附件；其他文件本地保存、按路径挂载。</div>
+      <div><b>会话归档管理</b><br>查找、归档、恢复；<b>只读预览</b>不恢复即可看内容；<b>全文检索</b>匹配对话正文而非仅标题。</div>
+      <div><b>用量看板</b><br>从本地会话目录折叠统计。<b>估算口径与真实口径分开显示，不混算。</b></div>
+    </div>
+  </div>
+
+</div>
+</body></html>

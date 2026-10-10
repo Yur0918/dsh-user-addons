@@ -20,7 +20,39 @@
 
 ## 安装
 
-使用你的 DSH profile 所采用的插件／包安装方式安装本包，然后重启 Web profile，使其重新发现包元数据和 `lib/client.js` 浏览器 bundle。本包声明了 Web 客户端插件入口：
+**本包没有发布到 npm。** registry 上不存在 `@yur0918/dsh-user-addons`，按包名
+安装会直接404。它是一个**本地profile 插件**：把源码目录软链到 profile 的
+`node_modules`，再往profile patch 层插一行，profile 启动时自动加载。
+
+在本仓库的 clone 目录下执行：
+
+```bash
+# 1. 软链到 profile 的 node_modules
+ln -s "$PWD" ~/.dsh/profiles/node_modules/dsh-user-addons
+
+# 2. 往 web profile 的 patch 层插入加载行
+#    （追加到 ~/.dsh/profiles/web/cordis.patch.yml）
+cat >> ~/.dsh/profiles/web/cordis.patch.yml <<'YAML'
+
+- insert:
+    - id: user-addons
+      name: 'dsh-user-addons'
+YAML
+
+# 3. 重启 Web profile，使其重新发现包元数据与 lib/client.js
+launchctl kickstart -k gui/$(id -u)/com.deepseek.dsh
+
+# 4. 验证
+curl http://127.0.0.1:3080/addons/health
+# → {"ok":true,"addon":"dsh-user-addons","version":"1.3.0"}
+```
+
+第 1、2 步是幂等的：重复执行只是重建软链并追加重复行，所以重装前先检查
+是否已存在。卸载时删掉软链和 `- id: user-addons` 那一行，再重启 profile。
+
+如果你用的是非默认的 `DSH_HOME`，把上面两处路径都指向那个 home。
+
+本包声明的客户端入口：
 
 ```json
 {
@@ -28,7 +60,6 @@
     "client": {
       "platform": "web",
       "inject": [
-        
         "@deepseek-ai/dsh-client-locale"
       ]
     }
@@ -36,7 +67,7 @@
 }
 ```
 
-从源码目录运行前，请确认已存在发布用的 `lib/client.js`，然后执行：
+执行包检查：
 
 ```sh
 npm run check
@@ -48,13 +79,14 @@ Host 半侧注册同源 `/addons/*` 接口：
 
 - `GET /addons/health`
 - `GET /addons/archive/list`
+- `GET /addons/archive/preview`
 - `POST /addons/archive/archive`
 - `POST /addons/archive/restore`
 - `GET /addons/image-capability`
 - `POST /addons/upload`
 - `GET /addons/usage/summary`
 
-上传大小上限为 100 MiB，文件名会在写入 DSH home 下的目录前进行清理。用量数据只从本地 DSH 会话日志读取；插件本身不发起网络请求。
+上传大小上限为 100 MiB（`lib/index.js` 中的 `UPLOAD_LIMIT_BYTES`），文件名会在写入 DSH home 下的目录前进行清理。用量数据只从本地 DSH 会话日志读取；插件本身不发起网络请求。
 
 ## 开发
 
