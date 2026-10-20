@@ -15,6 +15,7 @@ import {
   readOwnVersion,
   previewFromText,
   sessionLogsUnderRoot,
+  restoreArchived,
 } from "../lib/index.js";
 
 // ── safeName ────────────────────────────────────────────────────────────────
@@ -227,4 +228,51 @@ test("sessionLogsUnderRoot 识别 0.2.x 的 session.v4.jsonl.zstd", async () => 
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+// ── restoreArchived（归档恢复：公开面优先，私有面仅作旧宿主回退）────────────
+
+test("restoreArchived 优先走公开 unarchiveSession，不触碰私有三件套", async () => {
+  const calls = [];
+  const registry = {
+    archivedSessionIds: ["s1", "s2"],
+    unarchiveSession: async (id) => { calls.push(["unarchive", id]); },
+    enqueueOperation: async () => { calls.push(["private"]); },
+    requireState: () => { calls.push(["private"]); },
+    setState: async () => { calls.push(["private"]); },
+  };
+  const res = await restoreArchived(registry, "s1");
+  assert.deepEqual(res, { ok: true, sessionId: "s1" });
+  assert.deepEqual(calls, [["unarchive", "s1"]]);
+});
+
+test("restoreArchived 对未归档会话报 not archived，且不调用 unarchiveSession", async () => {
+  const calls = [];
+  const registry = {
+    archivedSessionIds: ["s1"],
+    unarchiveSession: async (id) => { calls.push(id); },
+  };
+  const res = await restoreArchived(registry, "s9");
+  assert.equal(res.ok, false);
+  assert.equal(res.error, "session is not archived");
+  assert.deepEqual(calls, []);
+});
+
+test("restoreArchived 在没有 unarchiveSession 的旧宿主上回退私有队列", async () => {
+  let state = { archivedSessionIds: ["s1", "s2"] };
+  const registry = {
+    archivedSessionIds: state.archivedSessionIds,
+    enqueueOperation: async (fn) => fn(),
+    requireState: () => state,
+    setState: async (next) => { state = next; },
+  };
+  const res = await restoreArchived(registry, "s1");
+  assert.deepEqual(res, { ok: true, sessionId: "s1" });
+  assert.deepEqual(state.archivedSessionIds, ["s2"]);
+});
+
+test("restoreArchived 在两种面都缺时给出明确错误", async () => {
+  const res = await restoreArchived({ archivedSessionIds: [] }, "s1");
+  assert.equal(res.ok, false);
+  assert.match(res.error, /cannot restore/);
 });
