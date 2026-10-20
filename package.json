@@ -31,7 +31,8 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=22.19.0"
+    "node": ">=22.19.0",
+    "dsh": ">=0.1.1-rc.2 <0.3.0"
   },
   "scripts": {
     "check": "node --check lib/index.js && node --check lib/client.js",
