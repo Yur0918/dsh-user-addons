@@ -14,6 +14,7 @@ import {
   decodeZstdLog,
   readOwnVersion,
   previewFromText,
+  sessionLogsUnderRoot,
 } from "../lib/index.js";
 
 // ── safeName ────────────────────────────────────────────────────────────────
@@ -202,4 +203,28 @@ test("previewFromText 只保留末尾 7 轮;首条用户消息 200 字截断、�
   const p2 = previewFromText(JSON.stringify({ type: "user/message", data: { content: [{ type: "text", text: long }] } }));
   assert.equal(p2.turns[0].text.length, 401);
   assert.ok(p2.turns[0].text.endsWith("…"));
+});
+
+test("sessionLogsUnderRoot 识别 0.2.x 的 session.v4.jsonl.zstd", async () => {
+  const { mkdtemp, mkdir, writeFile, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const root = await mkdtemp(join(tmpdir(), "ua-v4-"));
+  try {
+    const project = join(root, "--proj--");
+    const v4 = join(project, "session-aaa");
+    const v0 = join(project, "session-bbb");
+    await mkdir(v4, { recursive: true });
+    await mkdir(v0, { recursive: true });
+    await writeFile(join(v4, "session.v4.jsonl.zstd"), "x");
+    await writeFile(join(v0, "session.jsonl.zstd"), "y");
+    const logs = [];
+    await sessionLogsUnderRoot(root, logs, new Set());
+    const ids = logs.map((l) => l.id).sort();
+    assert.deepEqual(ids, ["session-aaa", "session-bbb"]);
+    const v4Entry = logs.find((l) => l.id === "session-aaa");
+    assert.ok(v4Entry.file.endsWith("session.v4.jsonl.zstd"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
